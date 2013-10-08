@@ -38,6 +38,7 @@ class ProjectBase extends Model
         'git_key' => null,
         'type' => null,
         'token' => null,
+        'access_information' => null,
      );
 
     /**
@@ -50,6 +51,7 @@ class ProjectBase extends Model
         'git_key' => 'getGitKey',
         'type' => 'getType',
         'token' => 'getToken',
+        'access_information' => 'getAccessInformation',
      );
 
     /**
@@ -62,6 +64,7 @@ class ProjectBase extends Model
         'git_key' => 'setGitKey',
         'type' => 'setType',
         'token' => 'setToken',
+        'access_information' => 'setAccessInformation',
      );
 
     /**
@@ -94,6 +97,10 @@ class ProjectBase extends Model
             'type' => 'varchar',
             'length' => '50',
             'nullable' => true,
+            ),
+        'access_information' => array(
+            'type' => 'varchar',
+            'length' => '250',
             ),
      );
 
@@ -190,6 +197,19 @@ class ProjectBase extends Model
     }
 
     /**
+    * Get the value of AccessInformation / access_information.
+    *
+    * @return string
+    */
+    public function getAccessInformation()
+    {
+        $rtn    = $this->data['access_information'];
+
+        
+        return $rtn;
+    }
+
+    /**
     * Set the value of Id / id.
     *
     * Must not be null.
@@ -199,7 +219,7 @@ class ProjectBase extends Model
     {
         $this->_validateNotNull('Id', $value);
         $this->_validateInt('Id', $value);
-        if ($this->data['id'] === $value) {
+        if ($this->data['id'] == $value) {
             return;
         }
 
@@ -218,7 +238,7 @@ class ProjectBase extends Model
     {
         $this->_validateNotNull('Title', $value);
         $this->_validateString('Title', $value);
-        if ($this->data['title'] === $value) {
+        if ($this->data['title'] == $value) {
             return;
         }
 
@@ -237,7 +257,7 @@ class ProjectBase extends Model
     {
         $this->_validateNotNull('Reference', $value);
         $this->_validateString('Reference', $value);
-        if ($this->data['reference'] === $value) {
+        if ($this->data['reference'] == $value) {
             return;
         }
 
@@ -256,7 +276,7 @@ class ProjectBase extends Model
     {
         $this->_validateNotNull('GitKey', $value);
         $this->_validateString('GitKey', $value);
-        if ($this->data['git_key'] === $value) {
+        if ($this->data['git_key'] == $value) {
             return;
         }
 
@@ -275,7 +295,7 @@ class ProjectBase extends Model
     {
         $this->_validateNotNull('Type', $value);
         $this->_validateString('Type', $value);
-        if ($this->data['type'] === $value) {
+        if ($this->data['type'] == $value) {
             return;
         }
 
@@ -293,13 +313,32 @@ class ProjectBase extends Model
     {
 
         $this->_validateString('Token', $value);
-        if ($this->data['token'] === $value) {
+        if ($this->data['token'] == $value) {
             return;
         }
 
         $this->data['token'] = $value;
 
         $this->_setModified('token');
+    }
+
+    /**
+    * Set the value of AccessInformation / access_information.
+    *
+    * Must not be null.
+    * @param $value string
+    */
+    public function setAccessInformation($value)
+    {
+        $this->_validateNotNull('AccessInformation', $value);
+        $this->_validateString('AccessInformation', $value);
+        if ($this->data['access_information'] == $value) {
+            return;
+        }
+
+        $this->data['access_information'] = $value;
+
+        $this->_setModified('access_information');
     }
 
     /**

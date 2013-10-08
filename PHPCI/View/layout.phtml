@@ -6,28 +6,43 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900,300italic' rel='stylesheet' type='text/css'>
+		<link href='//fonts.googleapis.com/css?family=Roboto:300&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="<?= PHPCI_URL ?>assets/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="<?= PHPCI_URL ?>assets/css/phpci.css">
+
+        <script>window.PHPCI_URL = <?php print json_encode(PHPCI_URL) ?></script>
+
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-		<script src="<?= PHPCI_URL ?>assets/js/bootstrap.min.js"></script>
-		<script src="<?= PHPCI_URL ?>assets/js/phpci.js"></script>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+        <script src="<?= PHPCI_URL ?>assets/js/bootstrap.min.js"></script>
+        <script src="<?= PHPCI_URL ?>assets/js/jqueryui.js"></script>
+        <script src="<?= PHPCI_URL ?>assets/js/class.js"></script>
+        <script src="<?= PHPCI_URL ?>assets/js/phpci.js"></script>
 	</head>
 	<body>
 		<div class="navbar navbar-fixed-top">
-			<div class="navbar-inner">
-				<div class="container">
-				<a class="brand" href="<?= PHPCI_URL ?>">PHPCI <span class="badge badge-important" style="position: relative; top: -3px; margin-left: 10px">1.0 Alpha</span></a>
+			<div class="container">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
 
-<ul class="nav pull-right">
-					<li><a href="<?= PHPCI_URL ?>session/logout">Log out</a></li>
-				</ul>
+				<a class="navbar-brand" href="<?= PHPCI_URL ?>"><img src="<?= PHPCI_URL ?>/assets/img/logo.png"></a>
 
-<?php if($this->User()->getIsAdmin()): ?>
-				<a class="pull-right btn" href="<?= PHPCI_URL ?>project/add">Add Project</a>
-<?php endif; ?>
+                <div class="nav-collapse collapse navbar-responsive-collapse">
+                    <ul class="nav navbar-nav pull-right">
+                        <li><a href="<?= PHPCI_URL ?>session/logout">Log out</a></li>
+                    </ul>
 
-				</div>
+                    <?php if($this->User()->getIsAdmin()): ?>
+                        <a class="btn btn-success navbar-btn pull-right" href="<?= PHPCI_URL ?>project/add">Add Project</a>
+                    <?php endif; ?>
+                </div>
+
+
+
 			</div>
 		</div>
 

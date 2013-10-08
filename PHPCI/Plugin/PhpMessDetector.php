@@ -17,25 +17,76 @@ namespace PHPCI\Plugin;
 */
 class PhpMessDetector implements \PHPCI\Plugin
 {
-    protected $directory;
+    /**
+     * @var \PHPCI\Builder
+     */
+    protected $phpci;
 
+    /**
+     * @var array
+     */
+    protected $suffixes;
+
+    /**
+     * @var string, based on the assumption the root may not hold the code to be
+     * tested, exteds the base path
+     */
+    protected $path;
+
+    /**
+     * @var array - paths to ignore
+     */
+    protected $ignore;
+
+    /**
+     * Array of PHPMD rules. Can be one of the builtins (codesize, unusedcode, naming, design, controversial)
+     * or a filenname (detected by checking for a / in it), either absolute or relative to the project root.
+     * @var array
+     */
+    protected $rules;
+
+    /**
+     * @param \PHPCI\Builder $phpci
+     * @param array $options
+     */
     public function __construct(\PHPCI\Builder $phpci, array $options = array())
     {
-        $this->phpci        = $phpci;
+        $this->phpci = $phpci;
+
+        $this->suffixes = isset($options['suffixes']) ? (array)$options['suffixes'] : array('php');
+
+        $this->ignore = (isset($options['ignore'])) ? (array)$options['ignore'] : $this->phpci->ignore;
+
+        $this->path = (isset($options['path'])) ? $options['path'] : '';
+
+        $this->rules = isset($options['rules']) ? (array)$options['rules'] : array('codesize', 'unusedcode', 'naming');
+        foreach ($this->rules as &$rule) {
+            if ($rule[0] !== '/' && strpos($rule, '/') !== FALSE) {
+                $rule = $this->phpci->buildPath . $rule;
+            }
+        }
     }
 
     /**
-    * Runs PHP Mess Detector in a specified directory.
-    */
+     * Runs PHP Mess Detector in a specified directory.
+     */
     public function execute()
     {
         $ignore = '';
-        
-        if (count($this->phpci->ignore)) {
-            $ignore = ' --exclude ' . implode(',', $this->phpci->ignore);
+        if (count($this->ignore)) {
+            $ignore = ' --exclude ' . implode(',', $this->ignore);
         }
 
-        $cmd = PHPCI_BIN_DIR . 'phpmd "%s" text codesize,unusedcode,naming %s';
-        return $this->phpci->executeCommand($cmd, $this->phpci->buildPath, $ignore);
+        $suffixes = '';
+        if (count($this->suffixes)) {
+            $suffixes = ' --suffixes ' . implode(',', $this->suffixes);
+        }
+
+        $cmd = PHPCI_BIN_DIR . 'phpmd "%s" text %s %s %s';
+        $success = $this->phpci->executeCommand($cmd, $this->phpci->buildPath . $this->path, implode(',', $this->rules), $ignore, $suffixes);
+        $errors = count(array_filter(explode(PHP_EOL, $this->phpci->getLastOutput())));
+        $this->phpci->storeBuildMeta('phpmd-warnings', $errors);
+
+        return $success;
     }
 }

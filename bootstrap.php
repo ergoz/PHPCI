@@ -32,47 +32,26 @@ if (!defined('APPLICATION_PATH')) {
     define('APPLICATION_PATH', dirname(__FILE__) . '/');
 }
 
+
+if (!file_exists(APPLICATION_PATH . 'PHPCI/config.yml')) {
+    header('Location: install.php');
+    die;
+}
+
+
 // Load Composer autoloader:
 require_once(APPLICATION_PATH . 'vendor/autoload.php');
 
 // Load configuration if present:
 $conf = array();
 $conf['b8']['app']['namespace'] = 'PHPCI';
-$conf['b8']['app']['default_controller'] = 'Index';
+$conf['b8']['app']['default_controller'] = 'Home';
 $conf['b8']['view']['path'] = dirname(__FILE__) . '/PHPCI/View/';
 
 $config = new b8\Config($conf);
-$request = new b8\Http\Request();
-$registry = new b8\Registry($config, $request);
+$config->loadYaml(APPLICATION_PATH . 'PHPCI/config.yml');
 
-if (file_exists(APPLICATION_PATH . 'config.php')) {
-    require(APPLICATION_PATH . 'config.php');
-
-    $conf = $config->get(null);
-    unset($conf['b8']['app']);
-    unset($conf['b8']['view']);
-
-    $conf['phpci']['url'] = $conf['install_url'];
-
-    if (isset($conf['github_app'])) {
-        $conf['phpci']['github'] = $conf['github_app'];
-    }
-    
-    unset($conf['install_url']);
-    unset($conf['github_app']);
-
-    $dumper = new Symfony\Component\Yaml\Dumper();
-    $yaml = $dumper->dump($conf);
-
-    file_put_contents(APPLICATION_PATH . 'PHPCI/config.yml', $yaml);
-    unlink(APPLICATION_PATH . 'config.php');
-}
-
-if (file_exists(APPLICATION_PATH . 'PHPCI/config.yml')) {
-    $config->loadYaml(APPLICATION_PATH . 'PHPCI/config.yml');
-
-    // Define our PHPCI_URL, if not already defined:
-    if (!defined('PHPCI_URL')) {
-        define('PHPCI_URL', $config->get('phpci.url', '') . '/');
-    }
+// Define our PHPCI_URL, if not already defined:
+if (!defined('PHPCI_URL')) {
+    define('PHPCI_URL', $config->get('phpci.url', '') . '/');
 }

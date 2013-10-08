@@ -3,14 +3,14 @@ PHPCI
 
 PHPCI is a free and open source continuous integration tool specifically designed for PHP. We've  built it with simplicity in mind, so whilst it doesn't do *everything* Jenkins can do, it is a breeze to set up and use.
 
-_**Please be aware that this is a brand new project, in an alpha state, so there will be bugs and missing features.**_
+_**Please be aware that PHPCI is a beta-release project, so whilst it is very stable, there may be bugs and/or missing features.**_
 
 **Current Build Status**
 
 ![Build Status](http://phpci.block8.net/build-status/image/2)
 
 ##What it does:
-* Clones your project from Github, Bitbucket or a local path (support for standard remote Git repositories coming soon.)
+* Clones your project from Github, Bitbucket or a local path
 * Allows you to set up and tear down test databases.
 * Installs your project's Composer dependencies.
 * Runs through any combination of the following plugins:
@@ -19,6 +19,7 @@ _**Please be aware that this is a brand new project, in an alpha state, so there
     * PHP Copy/Paste Detector
     * PHP Code Sniffer
     * PHP Spec
+    * Atoum
 * You can mark directories for the plugins to ignore.
 * You can mark certain plugins as being allowed to fail (but still run.)
 
@@ -28,7 +29,6 @@ _**Please be aware that this is a brand new project, in an alpha state, so there
 * Multiple testing workers.
 * Install PEAR or PECL extensions.
 * Deployments.
-* Success / Failure emails.
 
 ##Installing PHPCI:
 ####Pre-requisites:
@@ -42,26 +42,31 @@ _**Please be aware that this is a brand new project, in an alpha state, so there
 ####Installing from Github:
 * Step 1: `git clone https://github.com/Block8/PHPCI.git`
 * Step 2: `cd PHPCI`
-* Step 3: `chmod +x ./console && ./console phpci:install`
+* Step 3: `composer install`
+* Step 4: `chmod +x ./console && ./console phpci:install`
     * When prompted, enter your database host, username, password and the database name that PHPCI should use.
     * The script will attempt to create the database if it does not exist already.
     * If you intend to use the MySQL plugin to create / destroy databases, the user you entered above will need CREATE / DELETE permissions on the server.
-* Add a virtual host to your web server, pointing to the directory you cloned PHPCI into.
+* Add a virtual host to your web server, pointing to the directory "public" where you cloned PHPCI into.
 * You'll need to set up rewrite rules to point all non-existant requests to PHPCI.
 
-**Apache Example**:
+**Apache Example (require mod_rewrite installed)**:
 
-    RewriteEngine On
-    RewriteBase /path-to-phpci
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule (.*)? index.php [L,E=PATH_INFO:/$1]
-    
+```sh
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /path/to/phpci/public
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.php [L]
+</IfModule>
+```
+
 **Nginx Example**: 
 
 
     location / {
-        try-files $uri $uri/ index.php
+        try_files $uri $uri/ index.php
     }
 
 Finally, you'll want to set up PHPCI to run as a regular cronjob, so run `crontab -e` and enter the following:
@@ -80,8 +85,11 @@ Similar to Travis CI, to support PHPCI in your project, you simply need to add a
         mysql:
             host: "localhost"
             user: "root"
-            pass: ""        
-
+            pass: ""
+        campfire:
+            url: "https://youraccount.campfirenow.com"
+            authToken: "605b32dd"
+            roomId: "570102"
     setup:
         mysql:
             - "DROP DATABASE IF EXISTS test;"
@@ -104,10 +112,15 @@ Similar to Travis CI, to support PHPCI in your project, you simply need to add a
             standard: "PSR2"
         php_cpd:
             allow_failures: true
+        grunt:
+            task: "build"
     
     complete:
         mysql:
             - "DROP DATABASE IF EXISTS test;"
+    failure:
+        campfire:
+            message: "Phpci : build %buildurl% failed."
             
 As mentioned earlier, PHPCI is powered by plugins, there are several phases in which plugins can be run:
 

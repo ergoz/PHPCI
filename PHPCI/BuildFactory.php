@@ -40,6 +40,12 @@ class BuildFactory
             case 'bitbucket':
                 $type = 'BitbucketBuild';
                 break;
+            case 'gitlab':
+                $type = 'GitlabBuild';
+                break;
+            case 'hg':
+                $type = 'MercurialBuild';
+                break;
         }
 
         $type = '\\PHPCI\\Model\\Build\\' . $type;
